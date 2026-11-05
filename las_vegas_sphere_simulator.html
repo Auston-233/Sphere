@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere Simulator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+	<link rel="icon" type="image/png" href="s.png">
+    <!-- Three.js Library & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #030308;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(12, 16, 26, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+			width: 950px;
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
+        }
+
+        .glass-btn.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(59, 130, 246, 0.4));
+            border-color: #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+        }
+
+        /* Custom Scrollbar for side panel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Canvas viewport */
+        #webgl-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Neon Glow Utility */
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Offscreen texture generator canvas */
+        #texture-canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen overflow-hidden">
+
+    <!-- WebGL Render Container -->
+    <div id="webgl-container"></div>
+
+    <!-- Offscreen Procedural Texture Canvas (1024x512 equirectangular pattern projection) -->
+    <canvas id="texture-canvas" width="1024" height="512"></canvas>
+
+    <!-- UI Overlay Header -->
+    <header class="absolute top-0 left-0 w-full z-10 p-4 md:p-6 flex justify-between items-center pointer-events-none">
+        <div class="pointer-events-auto flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                <i class="fa-solid font-bold fa-globe text-lg animate-spin" style="animation-duration: 12s;"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-xl md:text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 neon-glow">
+                    SPHERE LAS VEGAS
+                </h1>
+                <p class="text-xs text-gray-400 font-mono tracking-widest">NEXT-GEN FACADE SIMULATOR</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions Top Bar -->
+        <div class="pointer-events-auto flex items-center gap-3">
+            <button id="btn-audio" class="glass-btn p-3 rounded-full text-white hover:text-cyan-400 flex items-center justify-center w-11 h-11" title="Toggle Sound Ambient">
+                <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
+            </button>
+            <button id="btn-rotate" class="glass-btn p-3 rounded-full text-white hover:text-cyan-400 flex items-center justify-center w-11 h-11 active" title="Toggle Auto Rotation">
+                <i class="fa-solid fa-rotate text-cyan-400"></i>
+            </button>
+            <button id="btn-fullscreen" class="glass-btn p-3 rounded-full text-white hover:text-cyan-400 flex items-center justify-center w-11 h-11" title="Fullscreen">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Preset Selector (Bottom Navigation Bar) -->
+    <nav class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[92%] max-w-4xl pointer-events-auto">
+        <div class="glass-panel rounded-2xl p-2 md:p-3 flex items-center gap-2 overflow-x-auto justify-start md:justify-center no-scrollbar">
+            
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap active" data-preset="halloween">
+                <i class="fa-solid fa-jack-o-lantern text-orange-500 text-base"></i>
+                <span>Halloween</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="christmas">
+                <i class="fa-solid fa-snowflake text-cyan-300 text-base"></i>
+                <span>Christmas</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="cyberpunk">
+                <i class="fa-solid fa-eye text-fuchsia-400 text-base"></i>
+                <span>Cyber Eye</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="emoji">
+                <i class="fa-solid fa-face-smile text-yellow-400 text-base"></i>
+                <span>Emoji Face</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="earth">
+                <i class="fa-solid fa-earth-americas text-emerald-400 text-base"></i>
+                <span>Earth Globe</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="fireworks">
+                <i class="fa-solid fa-champagne-glasses text-amber-300 text-base"></i>
+                <span>New Year</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="custom">
+                <i class="fa-solid fa-sliders text-cyan-400 text-base"></i>
+                <span>Custom</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Side Control Panel for Customizing Parameters -->
+    <aside id="custom-panel" class="absolute top-24 right-6 z-10 w-80 glass-panel rounded-2xl p-5 space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto hidden pointer-events-auto transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-gray-700/50 pb-3">
+            <h3 class="font-orbitron font-bold text-sm tracking-wider text-cyan-400 flex items-center gap-2">
+                <i class="fa-solid fa-sliders"></i> FACADE CONTROLLER
+            </h3>
+            <span class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded font-mono">LIVE</span>
+        </div>
+
+        <!-- Custom Controls Form -->
+        <div class="space-y-4 text-xs">
+
+            <!-- Pattern Mode -->
+            <div>
+                <label class="block text-gray-300 font-medium mb-1.5">Pattern Mode</label>
+                <select id="ctrl-mode" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
+                    <option value="matrix">Matrix Data Grid</option>
+                    <option value="waves">Sine Energy Waves</option>
+                    <option value="text">Custom Neon Text</option>
+                    <option value="rings">Concentric Pulse Rings</option>
+                </select>
+            </div>
+
+            <!-- Custom Text Input -->
+            <div id="text-input-group">
+                <label class="block text-gray-300 font-medium mb-1.5">Display Text</label>
+                <input type="text" id="ctrl-text" value="WELCOME TO VEGAS" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs" maxlength="24">
+            </div>
+
+            <!-- Primary Color -->
+            <div class="flex items-center justify-between">
+                <label class="text-gray-300 font-medium">Primary Glow</label>
+                <input type="color" id="ctrl-color1" value="#00f0ff" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer">
+            </div>
+
+            <!-- Secondary Color -->
+            <div class="flex items-center justify-between">
+                <label class="text-gray-300 font-medium">Secondary Accent</label>
+                <input type="color" id="ctrl-color2" value="#ff00a0" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer">
+            </div>
+
+            <!-- Speed Slider -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-gray-300 font-medium">Animation Speed</label>
+                    <span id="val-speed" class="text-gray-400 font-mono">1.0x</span>
+                </div>
+                <input type="range" id="ctrl-speed" min="0.1" max="3" step="0.1" value="1.0" class="w-full accent-cyan-400">
+            </div>
+
+            <!-- LED Density/Grid Slider -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-gray-300 font-medium">LED Matrix Pixelation</label>
+                    <span id="val-density" class="text-gray-400 font-mono">High</span>
+                </div>
+                <input type="range" id="ctrl-density" min="16" max="128" step="16" value="64" class="w-full accent-cyan-400">
+            </div>
+
+            <!-- Atmosphere Brightness -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-gray-300 font-medium">Facade Emission Intensity</label>
+                    <span id="val-intensity" class="text-gray-400 font-mono">1.5</span>
+                </div>
+                <input type="range" id="ctrl-intensity" min="0.5" max="3.0" step="0.1" value="1.5" class="w-full accent-cyan-400">
+            </div>
+        </div>
+    </aside>
+
+    <!-- Info Tooltip Overlay -->
+    <div class="absolute top-24 left-6 z-10 glass-panel rounded-xl p-4 hidden md:block max-w-xs pointer-events-none">
+        <h4 class="font-orbitron text-xs font-semibold text-cyan-400 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info"></i> INTERACTIVE CONTROLS
+        </h4>
+        <ul class="text-[11px] text-gray-300 space-y-1 font-mono">
+            <li>• Left Click + Drag: Rotate Camera</li>
+            <li>• Mouse Wheel: Zoom In / Out</li>
+            <li>• Right Click + Drag: Pan View</li>
+        </ul>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // --- 1. Audio Engine (Web Audio API Synthesizer) ---
+        class SphereAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.isPlaying = false;
+                this.ambientOsc = null;
+                this.gainNode = null;
+                this.presetSoundTimer = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            toggle() {
+                this.init();
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+
+                if (this.isPlaying) {
+                    this.stop();
+                } else {
+                    this.start();
+                }
+                return this.isPlaying;
+            }
+
+            start() {
+                if (this.isPlaying) return;
+                this.isPlaying = true;
+
+                // Create drone/synth ambient sound
+                this.ambientOsc = this.ctx.createOscillator();
+                const filter = this.ctx.createBiquadFilter();
+                this.gainNode = this.ctx.createGain();
+
+                this.ambientOsc.type = 'sawtooth';
+                this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(220, this.ctx.currentTime);
+
+                this.gainNode.gain.setValueAtTime(0.08, this.ctx.currentTime);
+
+                this.ambientOsc.connect(filter);
+                filter.connect(this.gainNode);
+                this.gainNode.connect(this.ctx.destination);
+
+                this.ambientOsc.start();
+                this.triggerRandomBeeps();
+            }
+
+            stop() {
+                if (!this.isPlaying) return;
+                this.isPlaying = false;
+                if (this.ambientOsc) {
+                    this.ambientOsc.stop();
+                    this.ambientOsc.disconnect();
+                }
+                if (this.presetSoundTimer) clearTimeout(this.presetSoundTimer);
+            }
+
+            triggerRandomBeeps() {
+                if (!this.isPlaying) return;
+                
+                // Synth sound chime effect
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const freq = [220, 277.18, 329.63, 440, 554.37, 659.25][Math.floor(Math.random() * 6)];
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 1.5);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 1.5);
+
+                this.presetSoundTimer = setTimeout(() => this.triggerRandomBeeps(), 1500 + Math.random() * 2500);
+            }
+
+            playFireworkPop() {
+                if (!this.isPlaying) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+        }
+
+        const audioEngine = new SphereAudioEngine();
+
+        // --- 2. Dynamic Procedural Canvas Texture Generator ---
+        class FacadeTextureGenerator {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.width = this.canvas.width;
+                this.height = this.canvas.height;
+                
+                this.currentPreset = 'halloween';
+                this.time = 0;
+                
+                // Custom user parameters
+                this.params = {
+                    mode: 'matrix',
+                    text: 'WELCOME TO VEGAS',
+                    color1: '#00f0ff',
+                    color2: '#ff00a0',
+                    speed: 1.0,
+                    density: 64,
+                    intensity: 1.5
+                };
+
+                // Snowflake particles for Christmas
+                this.snowflakes = Array.from({ length: 120 }, () => ({
+                    x: Math.random() * this.width,
+                    y: Math.random() * this.height,
+                    r: Math.random() * 3 + 1,
+                    s: Math.random() * 1.5 + 0.5
+                }));
+
+                // Fireworks particles
+                this.fireworks = [];
+                
+                // Eye blinking state
+                this.blinkTimer = 0;
+                this.isBlinking = false;
+            }
+
+            update(delta) {
+                this.time += delta * this.params.speed;
+
+                // Clear Canvas
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.width, this.height);
+
+                // Render current active visual preset
+                switch (this.currentPreset) {
+                    case 'halloween':
+                        this.renderHalloween();
+                        break;
+                    case 'christmas':
+                        this.renderChristmas();
+                        break;
+                    case 'cyberpunk':
+                        this.renderCyberpunk();
+                        break;
+                    case 'emoji':
+                        this.renderEmoji();
+                        break;
+                    case 'earth':
+                        this.renderEarth();
+                        break;
+                    case 'fireworks':
+                        this.renderFireworks();
+                        break;
+                    case 'custom':
+                        this.renderCustom();
+                        break;
+                }
+
+                // Overlay simulated LED Grid Matrix screen texture
+                this.applyLEDMatrixOverlay();
+            }
+
+            // LED Dot Matrix Facade Effect
+            applyLEDMatrixOverlay() {
+                const step = Math.floor(1024 / this.params.density);
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                for (let x = 0; x < this.width; x += step) {
+                    this.ctx.fillRect(x, 0, 1, this.height);
+                }
+                for (let y = 0; y < this.height; y += step) {
+                    this.ctx.fillRect(0, y, this.width, 1);
+                }
+            }
+
+            // --- PRESET RENDERS ---
+
+            // 1. Halloween Jack-o'-Lantern
+            renderHalloween() {
+                const w = this.width;
+                const h = this.height;
+
+                // Glowing orange fiery gradient background
+                const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+                const pulse = Math.sin(this.time * 3) * 0.15 + 0.85;
+                grad.addColorStop(0, '#1a0500');
+                grad.addColorStop(0.5, '#d94800');
+                grad.addColorStop(1, '#3a0800');
+                this.ctx.fillStyle = grad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Vertical Pumpkin Ribs Lines
+                this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+                this.ctx.lineWidth = 12;
+                for (let i = 0; i < w; i += 90) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(i, 0);
+                    this.ctx.quadraticCurveTo(i + 30 * Math.sin(i), h / 2, i, h);
+                    this.ctx.stroke();
+                }
+
+                // Spooky Face Features (Front Center X: w*0.5)
+                const cx = w * 0.5;
+                const cy = h * 0.48;
+
+                this.ctx.fillStyle = `#ffea00`;
+                this.ctx.shadowColor = '#ff5500';
+                this.ctx.shadowBlur = 40 * pulse;
+
+                // Creepy Glowing Eyes
+                const eyePulse = Math.sin(this.time * 5) * 5;
+                
+                // Left Eye
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx - 160, cy - 60);
+                this.ctx.lineTo(cx - 80, cy - 120 + eyePulse);
+                this.ctx.lineTo(cx - 60, cy - 30);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Right Eye
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx + 160, cy - 60);
+                this.ctx.lineTo(cx + 80, cy - 120 + eyePulse);
+                this.ctx.lineTo(cx + 60, cy - 30);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Triangular Nose
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx, cy - 20);
+                this.ctx.lineTo(cx - 25, cy + 20);
+                this.ctx.lineTo(cx + 25, cy + 20);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Jagged Mouth
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx - 220, cy + 60);
+                this.ctx.quadraticCurveTo(cx, cy + 180, cx + 220, cy + 60);
+                this.ctx.lineTo(cx + 170, cy + 80);
+                this.ctx.lineTo(cx + 130, cy + 50);
+                this.ctx.lineTo(cx + 90, cy + 90);
+                this.ctx.lineTo(cx + 40, cy + 50);
+                this.ctx.lineTo(cx, cy + 90);
+                this.ctx.lineTo(cx - 40, cy + 50);
+                this.ctx.lineTo(cx - 90, cy + 90);
+                this.ctx.lineTo(cx - 130, cy + 50);
+                this.ctx.lineTo(cx - 170, cy + 80);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                this.ctx.shadowBlur = 0;
+            }
+
+            // 2. Christmas & Winter Snowfall
+            renderChristmas() {
+                const w = this.width;
+                const h = this.height;
+
+                // Festive Deep Red/Green Gradient
+                const grad = this.ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w/2);
+                grad.addColorStop(0, '#a8071a');
+                grad.addColorStop(0.7, '#6b000b');
+                grad.addColorStop(1, '#002c11');
+                this.ctx.fillStyle = grad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Christmas Garland / Ribbon Stripe Pattern
+                this.ctx.fillStyle = '#0f5132';
+                for (let x = -w; x < w * 2; x += 120) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x + Math.sin(this.time + x) * 20, 0);
+                    this.ctx.lineTo(x + 60 + Math.sin(this.time + x) * 20, 0);
+                    this.ctx.lineTo(x - 100, h);
+                    this.ctx.lineTo(x - 160, h);
+                    this.ctx.fill();
+                }
+
+                // Decorative Twinkling Christmas Lights
+                const colors = ['#ff4d4f', '#52c41a', '#ffec3d', '#1890ff', '#ffffff'];
+                for (let i = 0; i < 40; i++) {
+                    const lx = (i * 55 + this.time * 20) % w;
+                    const ly = 100 + Math.sin(i + this.time * 2) * 80;
+                    const flash = Math.sin(this.time * 6 + i) > 0;
+                    this.ctx.fillStyle = flash ? colors[i % colors.length] : '#333';
+                    this.ctx.shadowColor = colors[i % colors.length];
+                    this.ctx.shadowBlur = flash ? 15 : 0;
+                    this.ctx.beginPath();
+                    this.ctx.arc(lx, ly, 10, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                this.ctx.shadowBlur = 0;
+
+                // Snowfall Animation Layer
+                this.ctx.fillStyle = '#ffffff';
+                this.snowflakes.forEach(s => {
+                    s.y += s.s;
+                    s.x += Math.sin(this.time + s.y * 0.05) * 0.5;
+                    if (s.y > h) s.y = -10;
+                    if (s.x > w) s.x = 0;
+                    if (s.x < 0) s.x = w;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+
+                // Central Festive Text
+                this.ctx.font = '900 48px Orbitron, sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.shadowColor = '#52c41a';
+                this.ctx.shadowBlur = 20;
+                this.ctx.fillText("MERRY CHRISTMAS", w * 0.5, h * 0.55);
+                this.ctx.shadowBlur = 0;
+            }
+
+            // 3. Cyberpunk Digital Eye
+            renderCyberpunk() {
+                const w = this.width;
+                const h = this.height;
+
+                // Dark Tech Grid background
+                this.ctx.fillStyle = '#030712';
+                this.ctx.fillRect(0, 0, w, h);
+
+                const cx = w * 0.5;
+                const cy = h * 0.5;
+
+                // Concentric HUD Target Rings
+                for (let i = 1; i <= 4; i++) {
+                    this.ctx.strokeStyle = i % 2 === 0 ? '#00f0ff' : '#ff0077';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, i * 60 + Math.sin(this.time * 2) * 5, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+
+                // Rotating Sci-Fi Aperture Segment Rings
+                this.ctx.save();
+                this.ctx.translate(cx, cy);
+                this.ctx.rotate(this.time * 0.8);
+                this.ctx.strokeStyle = '#00f0ff';
+                this.ctx.lineWidth = 6;
+                this.ctx.setLineDash([40, 20, 10, 20]);
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, 180, 0, Math.PI * 2);
+                this.ctx.stroke();
+                this.ctx.restore();
+
+                // Cybernetic Glowing Iris
+                const irisGrad = this.ctx.createRadialGradient(cx, cy, 20, cx, cy, 120);
+                irisGrad.addColorStop(0, '#000000');
+                irisGrad.addColorStop(0.3, '#ff0055');
+                irisGrad.addColorStop(0.7, '#00f0ff');
+                irisGrad.addColorStop(1, '#000000');
+                
+                this.ctx.fillStyle = irisGrad;
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Dynamic Tech Pupil Scanning Motion
+                const pupilX = cx + Math.sin(this.time * 2.5) * 40;
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.shadowColor = '#00f0ff';
+                this.ctx.shadowBlur = 30;
+                this.ctx.beginPath();
+                this.ctx.arc(pupilX, cy, 35, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+
+                // Data Streaming Text Lines
+                this.ctx.font = '14px monospace';
+                this.ctx.fillStyle = '#00f0ff';
+                this.ctx.fillText(`SYS.LOC: LAS VEGAS STRIP [SPHERE_NODE_01]`, 40, 60);
+                this.ctx.fillText(`TARGET_LOCK: ACTIVE // FPS: 60.0`, 40, 85);
+                this.ctx.fillText(`FACADE_SYNC: 99.8% // SCANNING...`, 40, 110);
+            }
+
+            // 4. Yellow Emoji / Smile Face
+            renderEmoji() {
+                const w = this.width;
+                const h = this.height;
+
+                // Bright Yellow Emoji Base
+                const bgGrad = this.ctx.createRadialGradient(w/2, h/2, 100, w/2, h/2, h);
+                bgGrad.addColorStop(0, '#ffe600');
+                bgGrad.addColorStop(0.8, '#ffb700');
+                bgGrad.addColorStop(1, '#d48800');
+                this.ctx.fillStyle = bgGrad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                const cx = w * 0.5;
+                const cy = h * 0.5;
+
+                // Blinking Logic
+                this.blinkTimer += 0.02;
+                if (this.blinkTimer > 4) {
+                    this.isBlinking = true;
+                    if (this.blinkTimer > 4.2) {
+                        this.isBlinking = false;
+                        this.blinkTimer = 0;
+                    }
+                }
+
+                // Eyes
+                this.ctx.fillStyle = '#222222';
+                if (this.isBlinking) {
+                    this.ctx.lineWidth = 14;
+                    this.ctx.strokeStyle = '#222222';
+                    this.ctx.lineCap = 'round';
+                    
+                    // Left Curved Line
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx - 130, cy - 40, 40, 0.1 * Math.PI, 0.9 * Math.PI);
+                    this.ctx.stroke();
+
+                    // Right Curved Line
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx + 130, cy - 40, 40, 0.1 * Math.PI, 0.9 * Math.PI);
+                    this.ctx.stroke();
+                } else {
+                    // Big Cartoon Pupils with Glint
+                    const lookOffset = Math.sin(this.time * 1.5) * 15;
+                    
+                    // Left Eye
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(cx - 130 + lookOffset, cy - 50, 40, 55, 0, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Right Eye
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(cx + 130 + lookOffset, cy - 50, 40, 55, 0, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Glint Highlights
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx - 145 + lookOffset, cy - 65, 14, 0, Math.PI * 2);
+                    this.ctx.arc(cx + 115 + lookOffset, cy - 65, 14, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+
+                // Happy Big Open Smile
+                this.ctx.fillStyle = '#222222';
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy + 30, 140, 0, Math.PI, false);
+                this.ctx.closePath();
+                this.ctx.fill();
+
+                // Pink Tongue inside mouth
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy + 30, 140, 0, Math.PI, false);
+                this.ctx.clip();
+
+                this.ctx.fillStyle = '#ff4d4f';
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy + 140, 70, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+            }
+
+            // 5. Realistic Earth & Atmosphere
+            renderEarth() {
+                const w = this.width;
+                const h = this.height;
+
+                // Deep Oceans
+                this.ctx.fillStyle = '#04152d';
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Procedural Landmass Shapes (Moving sideways to simulate rotation)
+                const offset = (this.time * 30) % w;
+                this.ctx.fillStyle = '#1b4d2e';
+
+                for (let i = -1; i <= 2; i++) {
+                    const baseX = i * w + offset;
+
+                    // North America-like shape
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(baseX + 100, 100);
+                    this.ctx.quadraticCurveTo(baseX + 250, 120, baseX + 280, 250);
+                    this.ctx.quadraticCurveTo(baseX + 200, 320, baseX + 120, 260);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+
+                    // Eurasia-like shape
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(baseX + 500, 120);
+                    this.ctx.quadraticCurveTo(baseX + 750, 100, baseX + 850, 240);
+                    this.ctx.quadraticCurveTo(baseX + 650, 340, baseX + 520, 260);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                }
+
+                // Glowing City Lights Dots (Night Side Visual)
+                this.ctx.fillStyle = '#ffc107';
+                for (let j = 0; j < 80; j++) {
+                    const lx = ((j * 47) + offset) % w;
+                    const ly = 120 + Math.sin(j * 3) * 140;
+                    this.ctx.fillRect(lx, ly, 3, 3);
+                }
+
+                // Atmosphere Wispy Cloud Swirls
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                for (let c = -1; c <= 2; c++) {
+                    const cx = c * w + offset * 1.3;
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(cx + 300, 180, 160, 25, 0.2, 0, Math.PI * 2);
+                    this.ctx.ellipse(cx + 700, 320, 200, 30, -0.1, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            // 6. Fireworks & New Year 2027
+            renderFireworks() {
+                const w = this.width;
+                const h = this.height;
+
+                // Dark Midnight Sky
+                this.ctx.fillStyle = 'rgba(5, 5, 16, 0.25)'; // Trail effect
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Spawn new firework explosion periodically
+                if (Math.random() < 0.1) {
+                    const fx = Math.random() * w;
+                    const fy = 100 + Math.random() * (h * 0.5);
+                    const color = ['#ff0055', '#00f0ff', '#ffea00', '#52c41a', '#ff9900'][Math.floor(Math.random() * 5)];
+                    
+                    audioEngine.playFireworkPop();
+
+                    for (let p = 0; p < 40; p++) {
+                        const angle = (Math.PI * 2 / 40) * p;
+                        const speed = Math.random() * 6 + 2;
+                        this.fireworks.push({
+                            x: fx,
+                            y: fy,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            color: color,
+                            alpha: 1.0,
+                            life: Math.random() * 30 + 30
+                        });
+                    }
+                }
+
+                // Render Active Firework Particles
+                for (let i = this.fireworks.length - 1; i >= 0; i--) {
+                    const p = this.fireworks[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.08; // Gravity
+                    p.alpha -= 0.02;
+
+                    if (p.alpha <= 0) {
+                        this.fireworks.splice(i, 1);
+                        continue;
+                    }
+
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.globalAlpha = p.alpha;
+                    this.ctx.shadowColor = p.color;
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                this.ctx.globalAlpha = 1.0;
+                this.ctx.shadowBlur = 0;
+
+                // Animated Celebratory Text Display
+                const textScale = Math.sin(this.time * 4) * 5 + 56;
+                this.ctx.font = `900 ${textScale}px Orbitron, sans-serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ffea00';
+                this.ctx.shadowColor = '#ff0055';
+                this.ctx.shadowBlur = 30;
+                this.ctx.fillText("HAPPY NEW YEAR", w * 0.5, h * 0.48);
+                
+                this.ctx.font = '900 64px Orbitron, sans-serif';
+                this.ctx.fillStyle = '#00f0ff';
+                this.ctx.fillText("2027", w * 0.5, h * 0.65);
+                this.ctx.shadowBlur = 0;
+            }
+
+            // 7. Custom User Configured Facade Engine
+            renderCustom() {
+                const w = this.width;
+                const h = this.height;
+
+                this.ctx.fillStyle = '#050714';
+                this.ctx.fillRect(0, 0, w, h);
+
+                const c1 = this.params.color1;
+                const c2 = this.params.color2;
+
+                if (this.params.mode === 'matrix') {
+                    // Digital Matrix Grid
+                    const cols = 32;
+                    const cellW = w / cols;
+                    for (let x = 0; x < cols; x++) {
+                        for (let y = 0; y < 16; y++) {
+                            const val = Math.sin(x * 0.5 + y * 0.5 + this.time * 3);
+                            this.ctx.fillStyle = val > 0 ? c1 : c2;
+                            this.ctx.fillRect(x * cellW + 2, y * 32 + 2, cellW - 4, 28);
+                        }
+                    }
+                } else if (this.params.mode === 'waves') {
+                    // Energy Plasma Waves
+                    for (let x = 0; x < w; x += 10) {
+                        const waveY = h/2 + Math.sin(x * 0.01 + this.time * 3) * 100 + Math.cos(x * 0.02 - this.time * 2) * 50;
+                        const grad = this.ctx.createLinearGradient(x, 0, x, h);
+                        grad.addColorStop(0, c1);
+                        grad.addColorStop(1, c2);
+                        this.ctx.fillStyle = grad;
+                        this.ctx.fillRect(x, waveY - 20, 8, 40);
+                    }
+                } else if (this.params.mode === 'text') {
+                    // Custom Scrolling Text
+                    this.ctx.font = '900 52px Orbitron, sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillStyle = c1;
+                    this.ctx.shadowColor = c2;
+                    this.ctx.shadowBlur = 25;
+                    
+                    const scrollX = w * 0.5 + Math.sin(this.time * 2) * 150;
+                    this.ctx.fillText(this.params.text.toUpperCase(), scrollX, h * 0.55);
+                    this.ctx.shadowBlur = 0;
+                } else if (this.params.mode === 'rings') {
+                    // Concentric Glowing Rings
+                    const cx = w * 0.5;
+                    const cy = h * 0.5;
+                    for (let r = 20; r < 300; r += 40) {
+                        const radius = (r + this.time * 80) % 300;
+                        this.ctx.strokeStyle = r % 80 === 0 ? c1 : c2;
+                        this.ctx.lineWidth = 12;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // --- 3. Three.js 3D Sphere & Las Vegas Scene Environment ---
+        class VegasSphereScene {
+            constructor() {
+                this.container = document.getElementById('webgl-container');
+                
+                // Texture Generator Reference
+                this.facadeGen = new FacadeTextureGenerator('texture-canvas');
+
+                // Scene, Camera, Renderer
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.FogExp2(0x030308, 0.0035);
+
+                this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 18, 65);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                this.renderer.toneMappingExposure = 1.2;
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                this.container.appendChild(this.renderer.domElement);
+
+                // Orbit Controls
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.maxPolarAngle = Math.PI / 2 - 0.01; // Don't go below ground
+                this.controls.minDistance = 25;
+                this.controls.maxDistance = 150;
+                this.controls.autoRotate = true;
+                this.controls.autoRotateSpeed = 0.8;
+
+                this.clock = new THREE.Clock();
+
+                this.initLights();
+                this.initSphere();
+                this.initEnvironment();
+                this.bindEvents();
+
+                // Start Loop
+                this.animate();
+            }
+
+            initLights() {
+                // Ambient Light
+                const ambientLight = new THREE.AmbientLight(0x0d111e, 1.2);
+                this.scene.add(ambientLight);
+
+                // Main Directional Moon/City Sky Light
+                const dirLight = new THREE.DirectionalLight(0x223355, 1.5);
+                dirLight.position.set(50, 80, 40);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.width = 2048;
+                dirLight.shadow.mapSize.height = 2048;
+                this.scene.add(dirLight);
+
+                // Dynamic Facade Point Light Glow (Emits LED light onto ground and surrounding buildings)
+                this.spherePointLight = new THREE.PointLight(0x00f0ff, 3.5, 120);
+                this.spherePointLight.position.set(0, 15, 0);
+                this.scene.add(this.spherePointLight);
+            }
+
+            initSphere() {
+                // Dynamic Canvas Texture for Three.js Material
+                this.facadeTexture = new THREE.CanvasTexture(this.facadeGen.canvas);
+                this.facadeTexture.minFilter = THREE.LinearFilter;
+                this.facadeTexture.magFilter = THREE.LinearFilter;
+                this.facadeTexture.wrapS = THREE.RepeatWrapping;
+                this.facadeTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+                // Sphere Geometry
+                const geometry = new THREE.SphereGeometry(18, 64, 64);
+
+                // Mesh Standard Material with High Emissive facade map
+                this.sphereMaterial = new THREE.MeshStandardMaterial({
+                    map: this.facadeTexture,
+                    emissiveMap: this.facadeTexture,
+                    emissive: new THREE.Color(0xffffff),
+                    emissiveIntensity: 1.5,
+                    roughness: 0.2,
+                    metalness: 0.8
+                });
+
+                this.sphereMesh = new THREE.Mesh(geometry, this.sphereMaterial);
+                this.sphereMesh.position.set(0, 15, 0); // Elevated above ground
+                this.sphereMesh.castShadow = true;
+                this.sphereMesh.receiveShadow = true;
+                this.scene.add(this.sphereMesh);
+
+                // Outer Atmosphere Neon Glow Aura (Backside Mesh Shell)
+                const glowGeo = new THREE.SphereGeometry(18.6, 32, 32);
+                const glowMat = new THREE.MeshBasicMaterial({
+                    color: 0x00f0ff,
+                    transparent: true,
+                    opacity: 0.12,
+                    side: THREE.BackSide
+                });
+                this.glowMesh = new THREE.Mesh(glowGeo, glowMat);
+                this.sphereMesh.add(this.glowMesh);
+            }
+
+            initEnvironment() {
+                // 1. Wet Reflective Ground Plane (Las Vegas Strip Asphalt)
+                const groundGeo = new THREE.PlaneGeometry(300, 300);
+                const groundMat = new THREE.MeshStandardMaterial({
+                    color: 0x0a0d14,
+                    roughness: 0.1, // Shiny wet asphalt reflection
+                    metalness: 0.6
+                });
+                const ground = new THREE.Mesh(groundGeo, groundMat);
+                ground.rotation.x = -Math.PI / 2;
+                ground.position.y = -3;
+                ground.receiveShadow = true;
+                this.scene.add(ground);
+
+                // Ground Grid Line Accents
+                const grid = new THREE.GridHelper(300, 40, 0x06b6d4, 0x1e293b);
+                grid.position.y = -2.9;
+                this.scene.add(grid);
+
+                // 2. Distant Las Vegas Silhouette Buildings & Neon Tower Silhouettes
+                const buildingGroup = new THREE.Group();
+                const bldgGeo = new THREE.BoxGeometry(1, 1, 1);
+                
+                for (let i = 0; i < 45; i++) {
+                    const angle = (i / 45) * Math.PI * 2;
+                    const radius = 90 + Math.random() * 50;
+
+                    // Distant ring positioning around Sphere
+                    const x = Math.cos(angle) * radius;
+                    const z = Math.sin(angle) * radius;
+
+                    const height = 20 + Math.random() * 65;
+                    const width = 12 + Math.random() * 16;
+                    const depth = 12 + Math.random() * 16;
+
+                    // Building Material
+                    const bldgMat = new THREE.MeshStandardMaterial({
+                        color: 0x060913,
+                        roughness: 0.4,
+                        metalness: 0.8
+                    });
+
+                    const building = new THREE.Mesh(bldgGeo, bldgMat);
+                    building.scale.set(width, height, depth);
+                    building.position.set(x, height / 2 - 3, z);
+                    buildingGroup.add(building);
+
+                    // Add Neon Strip Edges on top of buildings
+                    if (Math.random() > 0.4) {
+                        const neonGeo = new THREE.BoxGeometry(width + 0.2, 1, depth + 0.2);
+                        const neonMat = new THREE.MeshBasicMaterial({
+                            color: [0x00f0ff, 0xff00a0, 0x7000ff, 0xffea00][Math.floor(Math.random() * 4)]
+                        });
+                        const neon = new THREE.Mesh(neonGeo, neonMat);
+                        neon.position.set(x, height - 2, z);
+                        buildingGroup.add(neon);
+                    }
+                }
+                this.scene.add(buildingGroup);
+
+                // 3. Starfield Particle Background Sky
+                const starsGeo = new THREE.BufferGeometry();
+                const count = 1200;
+                const positions = new Float32Array(count * 3);
+
+                for (let i = 0; i < count * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 500;
+                    positions[i + 1] = Math.random() * 200 + 20;
+                    positions[i + 2] = (Math.random() - 0.5) * 500;
+                }
+
+                starsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const starsMat = new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 0.8,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const starField = new THREE.Points(starsGeo, starsMat);
+                this.scene.add(starField);
+            }
+
+            bindEvents() {
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                const delta = this.clock.getDelta();
+
+                // 1. Update Offscreen Canvas Facade Texture
+                this.facadeGen.update(delta);
+                this.facadeTexture.needsUpdate = true;
+
+                // 2. Synchronize Light intensity with Facade parameters
+                this.sphereMaterial.emissiveIntensity = this.facadeGen.params.intensity;
+                
+                // Extract glow tint color from custom or preset
+                if (this.facadeGen.currentPreset === 'halloween') {
+                    this.spherePointLight.color.setHex(0xff5500);
+                    this.glowMesh.material.color.setHex(0xff5500);
+                } else if (this.facadeGen.currentPreset === 'christmas') {
+                    this.spherePointLight.color.setHex(0x52c41a);
+                    this.glowMesh.material.color.setHex(0x52c41a);
+                } else if (this.facadeGen.currentPreset === 'cyberpunk') {
+                    this.spherePointLight.color.setHex(0x00f0ff);
+                    this.glowMesh.material.color.setHex(0x00f0ff);
+                } else if (this.facadeGen.currentPreset === 'emoji') {
+                    this.spherePointLight.color.setHex(0xffea00);
+                    this.glowMesh.material.color.setHex(0xffea00);
+                } else if (this.facadeGen.currentPreset === 'fireworks') {
+                    this.spherePointLight.color.setHex(0xff00a0);
+                    this.glowMesh.material.color.setHex(0xff00a0);
+                } else {
+                    this.spherePointLight.color.setStyle(this.facadeGen.params.color1);
+                    this.glowMesh.material.color.setStyle(this.facadeGen.params.color1);
+                }
+
+                // 3. Update Orbit Controls
+                this.controls.update();
+
+                // 4. Render 3D Scene
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // --- 4. UI Interaction & Controller Bindings ---
+        window.onload = () => {
+            const app = new VegasSphereScene();
+
+            // Preset Buttons Interaction
+            const presetButtons = document.querySelectorAll('.preset-btn');
+            const customPanel = document.getElementById('custom-panel');
+
+            presetButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    presetButtons.forEach(b => b.classList.remove('active'));
+                    const targetBtn = e.currentTarget;
+                    targetBtn.classList.add('active');
+
+                    const presetKey = targetBtn.getAttribute('data-preset');
+                    app.facadeGen.currentPreset = presetKey;
+
+                    // Show Side Controller panel only when Custom mode is selected
+                    if (presetKey === 'custom') {
+                        customPanel.classList.remove('hidden');
+                    } else {
+                        customPanel.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Audio Toggle
+            const btnAudio = document.getElementById('btn-audio');
+            const audioIcon = document.getElementById('audio-icon');
+
+            btnAudio.addEventListener('click', () => {
+                const isPlaying = audioEngine.toggle();
+                if (isPlaying) {
+                    btnAudio.classList.add('active');
+                    audioIcon.className = 'fa-solid fa-volume-high text-cyan-400';
+                } else {
+                    btnAudio.classList.remove('active');
+                    audioIcon.className = 'fa-solid fa-volume-xmark';
+                }
+            });
+
+            // Auto Rotation Toggle
+            const btnRotate = document.getElementById('btn-rotate');
+            btnRotate.addEventListener('click', () => {
+                app.controls.autoRotate = !app.controls.autoRotate;
+                if (app.controls.autoRotate) {
+                    btnRotate.classList.add('active');
+                } else {
+                    btnRotate.classList.remove('active');
+                }
+            });
+
+            // Fullscreen Toggle
+            const btnFullscreen = document.getElementById('btn-fullscreen');
+            btnFullscreen.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+
+            // --- Custom Panel Form Listeners ---
+            const ctrlMode = document.getElementById('ctrl-mode');
+            const ctrlText = document.getElementById('ctrl-text');
+            const textGroup = document.getElementById('text-input-group');
+            const ctrlColor1 = document.getElementById('ctrl-color1');
+            const ctrlColor2 = document.getElementById('ctrl-color2');
+            const ctrlSpeed = document.getElementById('ctrl-speed');
+            const valSpeed = document.getElementById('val-speed');
+            const ctrlDensity = document.getElementById('ctrl-density');
+            const valDensity = document.getElementById('val-density');
+            const ctrlIntensity = document.getElementById('ctrl-intensity');
+            const valIntensity = document.getElementById('val-intensity');
+
+            ctrlMode.addEventListener('change', (e) => {
+                app.facadeGen.params.mode = e.target.value;
+                if (e.target.value === 'text') {
+                    textGroup.style.display = 'block';
+                } else {
+                    textGroup.style.display = 'block';
+                }
+            });
+
+            ctrlText.addEventListener('input', (e) => {
+                app.facadeGen.params.text = e.target.value || 'VEGAS';
+            });
+
+            ctrlColor1.addEventListener('input', (e) => {
+                app.facadeGen.params.color1 = e.target.value;
+            });
+
+            ctrlColor2.addEventListener('input', (e) => {
+                app.facadeGen.params.color2 = e.target.value;
+            });
+
+            ctrlSpeed.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                app.facadeGen.params.speed = val;
+                valSpeed.textContent = `${val.toFixed(1)}x`;
+            });
+
+            ctrlDensity.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                app.facadeGen.params.density = val;
+                valDensity.textContent = val > 80 ? 'Ultra' : val > 48 ? 'High' : 'Medium';
+            });
+
+            ctrlIntensity.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                app.facadeGen.params.intensity = val;
+                valIntensity.textContent = val.toFixed(1);
+            });
+        };
+    </script>
+</body>
+</html>
