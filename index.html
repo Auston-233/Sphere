@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-	<link rel="icon" type="image/png" href="s.png">
-    <!-- Three.js Library & OrbitControls -->
+   	<link rel="icon" type="image/png" href="s.png">
+	<!-- Three.js Library & OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
@@ -32,12 +32,11 @@
 
         /* Glassmorphism styling */
         .glass-panel {
-            background: rgba(12, 16, 26, 0.75);
+            background: rgba(12, 16, 26, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-			width: 950px;
         }
 
         .glass-btn {
@@ -59,9 +58,10 @@
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
         }
 
-        /* Custom Scrollbar for side panel */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
@@ -131,48 +131,101 @@
         </div>
     </header>
 
-    <!-- Preset Selector (Bottom Navigation Bar) -->
-    <nav class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[92%] max-w-4xl pointer-events-auto">
-        <div class="glass-panel rounded-2xl p-2 md:p-3 flex items-center gap-2 overflow-x-auto justify-start md:justify-center no-scrollbar">
+    <!-- Emoji Sub-Bar Drawer -->
+    <div id="emoji-drawer" class="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10 w-[92%] max-w-4xl pointer-events-auto hidden transition-all duration-300">
+        <div class="glass-panel rounded-xl p-3 flex items-center gap-2 overflow-x-auto justify-start border-cyan-500/40">
+            <span class="text-xs font-mono text-cyan-400 px-2 font-bold whitespace-nowrap">EMOJI PACK:</span>
             
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap active" data-preset="halloween">
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap active" data-emoji="happy">
+                <span>馃槉 Happy</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="cool">
+                <span>馃槑 Cool</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="wink">
+                <span>馃槣 Wink</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="heart_eyes">
+                <span>馃槏 Hearts</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="cry_laugh">
+                <span>馃槶 Cry-Laugh</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="thinking">
+                <span>馃 Thinking</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="shocked">
+                <span>馃槷 Shocked</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="angry">
+                <span>馃槨 Angry</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="sleepy">
+                <span>馃槾 Sleeping</span>
+            </button>
+            <button class="emoji-sub-btn glass-btn px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 whitespace-nowrap" data-emoji="mindblown">
+                <span>馃く Mindblown</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Preset Selector (Bottom Navigation Bar) -->
+    <nav class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[95%] max-w-5xl pointer-events-auto">
+        <div class="glass-panel rounded-2xl p-2 md:p-3 flex items-center gap-2 overflow-x-auto justify-start no-scrollbar">
+            
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap active" data-preset="halloween">
                 <i class="fa-solid fa-jack-o-lantern text-orange-500 text-base"></i>
                 <span>Halloween</span>
             </button>
 
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="christmas">
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="christmas">
                 <i class="fa-solid fa-snowflake text-cyan-300 text-base"></i>
                 <span>Christmas</span>
             </button>
 
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="cyberpunk">
-                <i class="fa-solid fa-eye text-fuchsia-400 text-base"></i>
-                <span>Cyber Eye</span>
-            </button>
-
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="emoji">
-                <i class="fa-solid fa-face-smile text-yellow-400 text-base"></i>
-                <span>Emoji Face</span>
-            </button>
-
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="earth">
-                <i class="fa-solid fa-earth-americas text-emerald-400 text-base"></i>
-                <span>Earth Globe</span>
-            </button>
-
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="fireworks">
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="fireworks">
                 <i class="fa-solid fa-champagne-glasses text-amber-300 text-base"></i>
                 <span>New Year</span>
             </button>
 
-            <button class="preset-btn glass-btn px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="custom">
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="mid_autumn">
+                <i class="fa-solid fa-moon text-yellow-300 text-base"></i>
+                <span>Mid-Autumn</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="valentine">
+                <i class="fa-solid fa-heart text-pink-500 text-base"></i>
+                <span>Valentine</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="lantern">
+                <i class="fa-solid fa-lightbulb text-red-500 text-base"></i>
+                <span>Lantern Fest</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="emoji">
+                <i class="fa-solid fa-face-smile text-yellow-400 text-base"></i>
+                <span>Emoji (10)</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="cyberpunk">
+                <i class="fa-solid fa-eye text-fuchsia-400 text-base"></i>
+                <span>Cyber Eye</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="earth">
+                <i class="fa-solid fa-earth-americas text-emerald-400 text-base"></i>
+                <span>Earth</span>
+            </button>
+
+            <button class="preset-btn glass-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs md:text-sm font-medium whitespace-nowrap" data-preset="custom">
                 <i class="fa-solid fa-sliders text-cyan-400 text-base"></i>
                 <span>Custom</span>
             </button>
         </div>
     </nav>
 
-    <!-- Side Control Panel for Customizing Parameters -->
+    <!-- Side Control Panel -->
     <aside id="custom-panel" class="absolute top-24 right-6 z-10 w-80 glass-panel rounded-2xl p-5 space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto hidden pointer-events-auto transition-all duration-300">
         <div class="flex items-center justify-between border-b border-gray-700/50 pb-3">
             <h3 class="font-orbitron font-bold text-sm tracking-wider text-cyan-400 flex items-center gap-2">
@@ -181,10 +234,7 @@
             <span class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded font-mono">LIVE</span>
         </div>
 
-        <!-- Custom Controls Form -->
         <div class="space-y-4 text-xs">
-
-            <!-- Pattern Mode -->
             <div>
                 <label class="block text-gray-300 font-medium mb-1.5">Pattern Mode</label>
                 <select id="ctrl-mode" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
@@ -195,25 +245,21 @@
                 </select>
             </div>
 
-            <!-- Custom Text Input -->
             <div id="text-input-group">
                 <label class="block text-gray-300 font-medium mb-1.5">Display Text</label>
                 <input type="text" id="ctrl-text" value="WELCOME TO VEGAS" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500 font-mono text-xs" maxlength="24">
             </div>
 
-            <!-- Primary Color -->
             <div class="flex items-center justify-between">
                 <label class="text-gray-300 font-medium">Primary Glow</label>
                 <input type="color" id="ctrl-color1" value="#00f0ff" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer">
             </div>
 
-            <!-- Secondary Color -->
             <div class="flex items-center justify-between">
                 <label class="text-gray-300 font-medium">Secondary Accent</label>
                 <input type="color" id="ctrl-color2" value="#ff00a0" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer">
             </div>
 
-            <!-- Speed Slider -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label class="text-gray-300 font-medium">Animation Speed</label>
@@ -222,7 +268,6 @@
                 <input type="range" id="ctrl-speed" min="0.1" max="3" step="0.1" value="1.0" class="w-full accent-cyan-400">
             </div>
 
-            <!-- LED Density/Grid Slider -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label class="text-gray-300 font-medium">LED Matrix Pixelation</label>
@@ -231,7 +276,6 @@
                 <input type="range" id="ctrl-density" min="16" max="128" step="16" value="64" class="w-full accent-cyan-400">
             </div>
 
-            <!-- Atmosphere Brightness -->
             <div>
                 <div class="flex justify-between mb-1">
                     <label class="text-gray-300 font-medium">Facade Emission Intensity</label>
@@ -248,15 +292,15 @@
             <i class="fa-solid fa-circle-info"></i> INTERACTIVE CONTROLS
         </h4>
         <ul class="text-[11px] text-gray-300 space-y-1 font-mono">
-            <li>• Left Click + Drag: Rotate Camera</li>
-            <li>• Mouse Wheel: Zoom In / Out</li>
-            <li>• Right Click + Drag: Pan View</li>
+            <li>鈥�Left Click + Drag: Rotate Camera</li>
+            <li>鈥�Mouse Wheel: Zoom In / Out</li>
+            <li>鈥�Right Click + Drag: Pan View</li>
         </ul>
     </div>
 
     <!-- Application Script -->
     <script>
-        // --- 1. Audio Engine (Web Audio API Synthesizer) ---
+        // --- 1. Audio Engine ---
         class SphereAudioEngine {
             constructor() {
                 this.ctx = null;
@@ -291,13 +335,12 @@
                 if (this.isPlaying) return;
                 this.isPlaying = true;
 
-                // Create drone/synth ambient sound
                 this.ambientOsc = this.ctx.createOscillator();
                 const filter = this.ctx.createBiquadFilter();
                 this.gainNode = this.ctx.createGain();
 
                 this.ambientOsc.type = 'sawtooth';
-                this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
+                this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
 
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(220, this.ctx.currentTime);
@@ -324,8 +367,6 @@
 
             triggerRandomBeeps() {
                 if (!this.isPlaying) return;
-                
-                // Synth sound chime effect
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 const freq = [220, 277.18, 329.63, 440, 554.37, 659.25][Math.floor(Math.random() * 6)];
@@ -376,9 +417,9 @@
                 this.height = this.canvas.height;
                 
                 this.currentPreset = 'halloween';
+                this.activeEmoji = 'happy'; // Default active emoji variant
                 this.time = 0;
                 
-                // Custom user parameters
                 this.params = {
                     mode: 'matrix',
                     text: 'WELCOME TO VEGAS',
@@ -397,22 +438,32 @@
                     s: Math.random() * 1.5 + 0.5
                 }));
 
-                // Fireworks particles
+                // Floating Hearts for Valentine
+                this.hearts = Array.from({ length: 30 }, () => ({
+                    x: Math.random() * this.width,
+                    y: Math.random() * this.height,
+                    size: Math.random() * 15 + 10,
+                    speed: Math.random() * 2 + 1,
+                    opacity: Math.random() * 0.7 + 0.3
+                }));
+
+                // Floating Lanterns
+                this.lanterns = Array.from({ length: 18 }, () => ({
+                    x: Math.random() * this.width,
+                    y: Math.random() * this.height,
+                    scale: Math.random() * 0.4 + 0.6,
+                    speed: Math.random() * 0.8 + 0.4
+                }));
+
                 this.fireworks = [];
-                
-                // Eye blinking state
-                this.blinkTimer = 0;
-                this.isBlinking = false;
             }
 
             update(delta) {
                 this.time += delta * this.params.speed;
 
-                // Clear Canvas
                 this.ctx.fillStyle = '#000000';
                 this.ctx.fillRect(0, 0, this.width, this.height);
 
-                // Render current active visual preset
                 switch (this.currentPreset) {
                     case 'halloween':
                         this.renderHalloween();
@@ -420,28 +471,35 @@
                     case 'christmas':
                         this.renderChristmas();
                         break;
+                    case 'fireworks':
+                        this.renderFireworks();
+                        break;
+                    case 'mid_autumn':
+                        this.renderMidAutumn();
+                        break;
+                    case 'valentine':
+                        this.renderValentine();
+                        break;
+                    case 'lantern':
+                        this.renderLanternFest();
+                        break;
                     case 'cyberpunk':
                         this.renderCyberpunk();
                         break;
                     case 'emoji':
-                        this.renderEmoji();
+                        this.render10EmojiPack();
                         break;
                     case 'earth':
                         this.renderEarth();
-                        break;
-                    case 'fireworks':
-                        this.renderFireworks();
                         break;
                     case 'custom':
                         this.renderCustom();
                         break;
                 }
 
-                // Overlay simulated LED Grid Matrix screen texture
                 this.applyLEDMatrixOverlay();
             }
 
-            // LED Dot Matrix Facade Effect
             applyLEDMatrixOverlay() {
                 const step = Math.floor(1024 / this.params.density);
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
@@ -453,14 +511,12 @@
                 }
             }
 
-            // --- PRESET RENDERS ---
+            // --- HOLIDAY PRESETS ---
 
-            // 1. Halloween Jack-o'-Lantern
+            // 1. Halloween
             renderHalloween() {
                 const w = this.width;
                 const h = this.height;
-
-                // Glowing orange fiery gradient background
                 const grad = this.ctx.createLinearGradient(0, 0, 0, h);
                 const pulse = Math.sin(this.time * 3) * 0.15 + 0.85;
                 grad.addColorStop(0, '#1a0500');
@@ -469,7 +525,6 @@
                 this.ctx.fillStyle = grad;
                 this.ctx.fillRect(0, 0, w, h);
 
-                // Vertical Pumpkin Ribs Lines
                 this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
                 this.ctx.lineWidth = 12;
                 for (let i = 0; i < w; i += 90) {
@@ -479,7 +534,6 @@
                     this.ctx.stroke();
                 }
 
-                // Spooky Face Features (Front Center X: w*0.5)
                 const cx = w * 0.5;
                 const cy = h * 0.48;
 
@@ -487,10 +541,8 @@
                 this.ctx.shadowColor = '#ff5500';
                 this.ctx.shadowBlur = 40 * pulse;
 
-                // Creepy Glowing Eyes
                 const eyePulse = Math.sin(this.time * 5) * 5;
                 
-                // Left Eye
                 this.ctx.beginPath();
                 this.ctx.moveTo(cx - 160, cy - 60);
                 this.ctx.lineTo(cx - 80, cy - 120 + eyePulse);
@@ -498,7 +550,6 @@
                 this.ctx.closePath();
                 this.ctx.fill();
 
-                // Right Eye
                 this.ctx.beginPath();
                 this.ctx.moveTo(cx + 160, cy - 60);
                 this.ctx.lineTo(cx + 80, cy - 120 + eyePulse);
@@ -506,7 +557,6 @@
                 this.ctx.closePath();
                 this.ctx.fill();
 
-                // Triangular Nose
                 this.ctx.beginPath();
                 this.ctx.moveTo(cx, cy - 20);
                 this.ctx.lineTo(cx - 25, cy + 20);
@@ -514,7 +564,6 @@
                 this.ctx.closePath();
                 this.ctx.fill();
 
-                // Jagged Mouth
                 this.ctx.beginPath();
                 this.ctx.moveTo(cx - 220, cy + 60);
                 this.ctx.quadraticCurveTo(cx, cy + 180, cx + 220, cy + 60);
@@ -533,12 +582,11 @@
                 this.ctx.shadowBlur = 0;
             }
 
-            // 2. Christmas & Winter Snowfall
+            // 2. Christmas
             renderChristmas() {
                 const w = this.width;
                 const h = this.height;
 
-                // Festive Deep Red/Green Gradient
                 const grad = this.ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w/2);
                 grad.addColorStop(0, '#a8071a');
                 grad.addColorStop(0.7, '#6b000b');
@@ -546,7 +594,6 @@
                 this.ctx.fillStyle = grad;
                 this.ctx.fillRect(0, 0, w, h);
 
-                // Christmas Garland / Ribbon Stripe Pattern
                 this.ctx.fillStyle = '#0f5132';
                 for (let x = -w; x < w * 2; x += 120) {
                     this.ctx.beginPath();
@@ -557,7 +604,6 @@
                     this.ctx.fill();
                 }
 
-                // Decorative Twinkling Christmas Lights
                 const colors = ['#ff4d4f', '#52c41a', '#ffec3d', '#1890ff', '#ffffff'];
                 for (let i = 0; i < 40; i++) {
                     const lx = (i * 55 + this.time * 20) % w;
@@ -572,7 +618,6 @@
                 }
                 this.ctx.shadowBlur = 0;
 
-                // Snowfall Animation Layer
                 this.ctx.fillStyle = '#ffffff';
                 this.snowflakes.forEach(s => {
                     s.y += s.s;
@@ -586,7 +631,6 @@
                     this.ctx.fill();
                 });
 
-                // Central Festive Text
                 this.ctx.font = '900 48px Orbitron, sans-serif';
                 this.ctx.textAlign = 'center';
                 this.ctx.fillStyle = '#ffffff';
@@ -596,215 +640,14 @@
                 this.ctx.shadowBlur = 0;
             }
 
-            // 3. Cyberpunk Digital Eye
-            renderCyberpunk() {
-                const w = this.width;
-                const h = this.height;
-
-                // Dark Tech Grid background
-                this.ctx.fillStyle = '#030712';
-                this.ctx.fillRect(0, 0, w, h);
-
-                const cx = w * 0.5;
-                const cy = h * 0.5;
-
-                // Concentric HUD Target Rings
-                for (let i = 1; i <= 4; i++) {
-                    this.ctx.strokeStyle = i % 2 === 0 ? '#00f0ff' : '#ff0077';
-                    this.ctx.lineWidth = 2;
-                    this.ctx.beginPath();
-                    this.ctx.arc(cx, cy, i * 60 + Math.sin(this.time * 2) * 5, 0, Math.PI * 2);
-                    this.ctx.stroke();
-                }
-
-                // Rotating Sci-Fi Aperture Segment Rings
-                this.ctx.save();
-                this.ctx.translate(cx, cy);
-                this.ctx.rotate(this.time * 0.8);
-                this.ctx.strokeStyle = '#00f0ff';
-                this.ctx.lineWidth = 6;
-                this.ctx.setLineDash([40, 20, 10, 20]);
-                this.ctx.beginPath();
-                this.ctx.arc(0, 0, 180, 0, Math.PI * 2);
-                this.ctx.stroke();
-                this.ctx.restore();
-
-                // Cybernetic Glowing Iris
-                const irisGrad = this.ctx.createRadialGradient(cx, cy, 20, cx, cy, 120);
-                irisGrad.addColorStop(0, '#000000');
-                irisGrad.addColorStop(0.3, '#ff0055');
-                irisGrad.addColorStop(0.7, '#00f0ff');
-                irisGrad.addColorStop(1, '#000000');
-                
-                this.ctx.fillStyle = irisGrad;
-                this.ctx.beginPath();
-                this.ctx.arc(cx, cy, 120, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Dynamic Tech Pupil Scanning Motion
-                const pupilX = cx + Math.sin(this.time * 2.5) * 40;
-                this.ctx.fillStyle = '#ffffff';
-                this.ctx.shadowColor = '#00f0ff';
-                this.ctx.shadowBlur = 30;
-                this.ctx.beginPath();
-                this.ctx.arc(pupilX, cy, 35, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.shadowBlur = 0;
-
-                // Data Streaming Text Lines
-                this.ctx.font = '14px monospace';
-                this.ctx.fillStyle = '#00f0ff';
-                this.ctx.fillText(`SYS.LOC: LAS VEGAS STRIP [SPHERE_NODE_01]`, 40, 60);
-                this.ctx.fillText(`TARGET_LOCK: ACTIVE // FPS: 60.0`, 40, 85);
-                this.ctx.fillText(`FACADE_SYNC: 99.8% // SCANNING...`, 40, 110);
-            }
-
-            // 4. Yellow Emoji / Smile Face
-            renderEmoji() {
-                const w = this.width;
-                const h = this.height;
-
-                // Bright Yellow Emoji Base
-                const bgGrad = this.ctx.createRadialGradient(w/2, h/2, 100, w/2, h/2, h);
-                bgGrad.addColorStop(0, '#ffe600');
-                bgGrad.addColorStop(0.8, '#ffb700');
-                bgGrad.addColorStop(1, '#d48800');
-                this.ctx.fillStyle = bgGrad;
-                this.ctx.fillRect(0, 0, w, h);
-
-                const cx = w * 0.5;
-                const cy = h * 0.5;
-
-                // Blinking Logic
-                this.blinkTimer += 0.02;
-                if (this.blinkTimer > 4) {
-                    this.isBlinking = true;
-                    if (this.blinkTimer > 4.2) {
-                        this.isBlinking = false;
-                        this.blinkTimer = 0;
-                    }
-                }
-
-                // Eyes
-                this.ctx.fillStyle = '#222222';
-                if (this.isBlinking) {
-                    this.ctx.lineWidth = 14;
-                    this.ctx.strokeStyle = '#222222';
-                    this.ctx.lineCap = 'round';
-                    
-                    // Left Curved Line
-                    this.ctx.beginPath();
-                    this.ctx.arc(cx - 130, cy - 40, 40, 0.1 * Math.PI, 0.9 * Math.PI);
-                    this.ctx.stroke();
-
-                    // Right Curved Line
-                    this.ctx.beginPath();
-                    this.ctx.arc(cx + 130, cy - 40, 40, 0.1 * Math.PI, 0.9 * Math.PI);
-                    this.ctx.stroke();
-                } else {
-                    // Big Cartoon Pupils with Glint
-                    const lookOffset = Math.sin(this.time * 1.5) * 15;
-                    
-                    // Left Eye
-                    this.ctx.beginPath();
-                    this.ctx.ellipse(cx - 130 + lookOffset, cy - 50, 40, 55, 0, 0, Math.PI * 2);
-                    this.ctx.fill();
-
-                    // Right Eye
-                    this.ctx.beginPath();
-                    this.ctx.ellipse(cx + 130 + lookOffset, cy - 50, 40, 55, 0, 0, Math.PI * 2);
-                    this.ctx.fill();
-
-                    // Glint Highlights
-                    this.ctx.fillStyle = '#ffffff';
-                    this.ctx.beginPath();
-                    this.ctx.arc(cx - 145 + lookOffset, cy - 65, 14, 0, Math.PI * 2);
-                    this.ctx.arc(cx + 115 + lookOffset, cy - 65, 14, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-
-                // Happy Big Open Smile
-                this.ctx.fillStyle = '#222222';
-                this.ctx.beginPath();
-                this.ctx.arc(cx, cy + 30, 140, 0, Math.PI, false);
-                this.ctx.closePath();
-                this.ctx.fill();
-
-                // Pink Tongue inside mouth
-                this.ctx.save();
-                this.ctx.beginPath();
-                this.ctx.arc(cx, cy + 30, 140, 0, Math.PI, false);
-                this.ctx.clip();
-
-                this.ctx.fillStyle = '#ff4d4f';
-                this.ctx.beginPath();
-                this.ctx.arc(cx, cy + 140, 70, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.restore();
-            }
-
-            // 5. Realistic Earth & Atmosphere
-            renderEarth() {
-                const w = this.width;
-                const h = this.height;
-
-                // Deep Oceans
-                this.ctx.fillStyle = '#04152d';
-                this.ctx.fillRect(0, 0, w, h);
-
-                // Procedural Landmass Shapes (Moving sideways to simulate rotation)
-                const offset = (this.time * 30) % w;
-                this.ctx.fillStyle = '#1b4d2e';
-
-                for (let i = -1; i <= 2; i++) {
-                    const baseX = i * w + offset;
-
-                    // North America-like shape
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(baseX + 100, 100);
-                    this.ctx.quadraticCurveTo(baseX + 250, 120, baseX + 280, 250);
-                    this.ctx.quadraticCurveTo(baseX + 200, 320, baseX + 120, 260);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-
-                    // Eurasia-like shape
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(baseX + 500, 120);
-                    this.ctx.quadraticCurveTo(baseX + 750, 100, baseX + 850, 240);
-                    this.ctx.quadraticCurveTo(baseX + 650, 340, baseX + 520, 260);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                }
-
-                // Glowing City Lights Dots (Night Side Visual)
-                this.ctx.fillStyle = '#ffc107';
-                for (let j = 0; j < 80; j++) {
-                    const lx = ((j * 47) + offset) % w;
-                    const ly = 120 + Math.sin(j * 3) * 140;
-                    this.ctx.fillRect(lx, ly, 3, 3);
-                }
-
-                // Atmosphere Wispy Cloud Swirls
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-                for (let c = -1; c <= 2; c++) {
-                    const cx = c * w + offset * 1.3;
-                    this.ctx.beginPath();
-                    this.ctx.ellipse(cx + 300, 180, 160, 25, 0.2, 0, Math.PI * 2);
-                    this.ctx.ellipse(cx + 700, 320, 200, 30, -0.1, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
-
-            // 6. Fireworks & New Year 2027
+            // 3. New Year Fireworks
             renderFireworks() {
                 const w = this.width;
                 const h = this.height;
 
-                // Dark Midnight Sky
-                this.ctx.fillStyle = 'rgba(5, 5, 16, 0.25)'; // Trail effect
+                this.ctx.fillStyle = 'rgba(5, 5, 16, 0.25)';
                 this.ctx.fillRect(0, 0, w, h);
 
-                // Spawn new firework explosion periodically
                 if (Math.random() < 0.1) {
                     const fx = Math.random() * w;
                     const fy = 100 + Math.random() * (h * 0.5);
@@ -827,12 +670,11 @@
                     }
                 }
 
-                // Render Active Firework Particles
                 for (let i = this.fireworks.length - 1; i >= 0; i--) {
                     const p = this.fireworks[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += 0.08; // Gravity
+                    p.vy += 0.08;
                     p.alpha -= 0.02;
 
                     if (p.alpha <= 0) {
@@ -851,7 +693,6 @@
                 this.ctx.globalAlpha = 1.0;
                 this.ctx.shadowBlur = 0;
 
-                // Animated Celebratory Text Display
                 const textScale = Math.sin(this.time * 4) * 5 + 56;
                 this.ctx.font = `900 ${textScale}px Orbitron, sans-serif`;
                 this.ctx.textAlign = 'center';
@@ -866,7 +707,511 @@
                 this.ctx.shadowBlur = 0;
             }
 
-            // 7. Custom User Configured Facade Engine
+            // 4. Mid-Autumn Festival (涓鑺�
+            renderMidAutumn() {
+                const w = this.width;
+                const h = this.height;
+
+                const bgGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+                bgGrad.addColorStop(0, '#020514');
+                bgGrad.addColorStop(0.6, '#0b193c');
+                bgGrad.addColorStop(1, '#1b0f38');
+                this.ctx.fillStyle = bgGrad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                const cx = w * 0.5;
+                const cy = h * 0.42;
+
+                // Glowing Giant Golden Full Moon
+                const moonGrad = this.ctx.createRadialGradient(cx, cy, 20, cx, cy, 140);
+                moonGrad.addColorStop(0, '#ffffff');
+                moonGrad.addColorStop(0.5, '#ffe600');
+                moonGrad.addColorStop(1, '#ffaa00');
+                
+                this.ctx.shadowColor = '#ffea00';
+                this.ctx.shadowBlur = 50;
+                this.ctx.fillStyle = moonGrad;
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, 130, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+
+                // Moving Wispy Golden Clouds
+                this.ctx.fillStyle = 'rgba(255, 235, 170, 0.2)';
+                for (let i = 0; i < 3; i++) {
+                    const cloudX = (cx - 200 + i * 180 + Math.sin(this.time + i) * 40) % w;
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(cloudX, cy + 30 * i - 20, 140, 25, 0, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+
+                // Jade Rabbit Silhouette Hopping
+                const rx = cx + Math.sin(this.time * 2) * 60;
+                const ry = cy + 40 - Math.abs(Math.cos(this.time * 4)) * 25;
+                
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.beginPath();
+                this.ctx.arc(rx, ry, 18, 0, Math.PI * 2); // Body
+                this.ctx.arc(rx + 12, ry - 14, 11, 0, Math.PI * 2); // Head
+                this.ctx.ellipse(rx + 10, ry - 30, 4, 12, -0.2, 0, Math.PI * 2); // Ear 1
+                this.ctx.ellipse(rx + 17, ry - 28, 4, 12, 0.2, 0, Math.PI * 2); // Ear 2
+                this.ctx.arc(rx - 16, ry + 8, 5, 0, Math.PI * 2); // Tail
+                this.ctx.fill();
+
+                // Calligraphy Text
+                this.ctx.font = '900 44px Orbitron, sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ffeaa7';
+                this.ctx.shadowColor = '#fdcb6e';
+                this.ctx.shadowBlur = 15;
+                this.ctx.fillText("HAPPY MID-AUTUMN", cx, h * 0.82);
+                this.ctx.shadowBlur = 0;
+            }
+
+            // 5. Valentine's Day (鎯呬汉鑺�
+            renderValentine() {
+                const w = this.width;
+                const h = this.height;
+
+                const bgGrad = this.ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w/2);
+                bgGrad.addColorStop(0, '#590925');
+                bgGrad.addColorStop(0.7, '#2b0515');
+                bgGrad.addColorStop(1, '#120008');
+                this.ctx.fillStyle = bgGrad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Floating Heart Particles
+                this.hearts.forEach(hItem => {
+                    hItem.y -= hItem.speed;
+                    if (hItem.y < -30) hItem.y = h + 20;
+
+                    this.drawHeart(hItem.x + Math.sin(this.time + hItem.y * 0.02) * 15, hItem.y, hItem.size, '#ff4d6d', hItem.opacity);
+                });
+
+                // Central Giant Pulsing Heart
+                const scale = 1 + Math.sin(this.time * 4) * 0.08;
+                const cx = w * 0.5;
+                const cy = h * 0.45;
+                this.drawHeart(cx, cy, 120 * scale, '#ff0054', 1.0, true);
+
+                this.ctx.font = '900 48px Orbitron, sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.shadowColor = '#ff0054';
+                this.ctx.shadowBlur = 25;
+                this.ctx.fillText("BE MY VALENTINE", cx, h * 0.82);
+                this.ctx.shadowBlur = 0;
+            }
+
+            // Helper to draw Heart Shape
+            drawHeart(x, y, size, color, alpha = 1.0, glow = false) {
+                this.ctx.save();
+                this.ctx.translate(x, y);
+                this.ctx.globalAlpha = alpha;
+                if (glow) {
+                    this.ctx.shadowColor = color;
+                    this.ctx.shadowBlur = 30;
+                }
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                const d = size;
+                this.ctx.moveTo(0, 0);
+                this.ctx.bezierCurveTo(-d / 2, -d / 2, -d, d / 3, 0, d);
+                this.ctx.bezierCurveTo(d, d / 3, d / 2, -d / 2, 0, 0);
+                this.ctx.fill();
+                this.ctx.restore();
+            }
+
+            // 6. Lantern Festival (鍏冨鑺�
+            renderLanternFest() {
+                const w = this.width;
+                const h = this.height;
+
+                this.ctx.fillStyle = '#0a0204';
+                this.ctx.fillRect(0, 0, w, h);
+
+                // Animated Floating Red Lanterns
+                this.lanterns.forEach(l => {
+                    l.y -= l.speed;
+                    if (l.y < -60) l.y = h + 40;
+
+                    const lx = l.x + Math.sin(this.time * 1.5 + l.y) * 20;
+                    const ly = l.y;
+                    const s = l.scale;
+
+                    // Red Glow Body
+                    this.ctx.shadowColor = '#ff0000';
+                    this.ctx.shadowBlur = 25 * s;
+                    this.ctx.fillStyle = '#d90429';
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(lx, ly, 25 * s, 32 * s, 0, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+
+                    // Gold Caps
+                    this.ctx.fillStyle = '#ffb703';
+                    this.ctx.fillRect(lx - 15 * s, ly - 36 * s, 30 * s, 6 * s);
+                    this.ctx.fillRect(lx - 15 * s, ly + 30 * s, 30 * s, 6 * s);
+
+                    // Tassel
+                    this.ctx.strokeStyle = '#ffb703';
+                    this.ctx.lineWidth = 2 * s;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(lx, ly + 36 * s);
+                    this.ctx.lineTo(lx, ly + 55 * s);
+                    this.ctx.stroke();
+                });
+
+                // Central Title
+                this.ctx.font = '900 50px Orbitron, sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ffb703';
+                this.ctx.shadowColor = '#d90429';
+                this.ctx.shadowBlur = 25;
+                this.ctx.fillText("LANTERN FESTIVAL", w * 0.5, h * 0.52);
+                this.ctx.shadowBlur = 0;
+            }
+
+            // 7. Cyberpunk Digital Eye
+            renderCyberpunk() {
+                const w = this.width;
+                const h = this.height;
+
+                this.ctx.fillStyle = '#030712';
+                this.ctx.fillRect(0, 0, w, h);
+
+                const cx = w * 0.5;
+                const cy = h * 0.5;
+
+                for (let i = 1; i <= 4; i++) {
+                    this.ctx.strokeStyle = i % 2 === 0 ? '#00f0ff' : '#ff0077';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(cx, cy, i * 60 + Math.sin(this.time * 2) * 5, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+
+                this.ctx.save();
+                this.ctx.translate(cx, cy);
+                this.ctx.rotate(this.time * 0.8);
+                this.ctx.strokeStyle = '#00f0ff';
+                this.ctx.lineWidth = 6;
+                this.ctx.setLineDash([40, 20, 10, 20]);
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, 180, 0, Math.PI * 2);
+                this.ctx.stroke();
+                this.ctx.restore();
+
+                const irisGrad = this.ctx.createRadialGradient(cx, cy, 20, cx, cy, 120);
+                irisGrad.addColorStop(0, '#000000');
+                irisGrad.addColorStop(0.3, '#ff0055');
+                irisGrad.addColorStop(0.7, '#00f0ff');
+                irisGrad.addColorStop(1, '#000000');
+                
+                this.ctx.fillStyle = irisGrad;
+                this.ctx.beginPath();
+                this.ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                const pupilX = cx + Math.sin(this.time * 2.5) * 40;
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.shadowColor = '#00f0ff';
+                this.ctx.shadowBlur = 30;
+                this.ctx.beginPath();
+                this.ctx.arc(pupilX, cy, 35, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+            }
+
+            // --- 8. 10 EMOJI PACK FACADE SWITCHER ---
+            render10EmojiPack() {
+                const w = this.width;
+                const h = this.height;
+                const cx = w * 0.5;
+                const cy = h * 0.5;
+
+                // Base Yellow Skin Tone Gradient (Dynamic according to emotion)
+                let baseColor1 = '#ffe600';
+                let baseColor2 = '#d48800';
+
+                if (this.activeEmoji === 'angry') {
+                    baseColor1 = '#ff4d4f';
+                    baseColor2 = '#9e1000';
+                } else if (this.activeEmoji === 'sleepy') {
+                    baseColor1 = '#adc6ff';
+                    baseColor2 = '#2f54eb';
+                }
+
+                const bgGrad = this.ctx.createRadialGradient(cx, cy, 100, cx, cy, h);
+                bgGrad.addColorStop(0, baseColor1);
+                bgGrad.addColorStop(1, baseColor2);
+                this.ctx.fillStyle = bgGrad;
+                this.ctx.fillRect(0, 0, w, h);
+
+                this.ctx.fillStyle = '#222222';
+                this.ctx.strokeStyle = '#222222';
+
+                switch (this.activeEmoji) {
+                    // 1. Happy Smile 馃槉
+                    case 'happy':
+                        // Eyes
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 40, 35, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 130, cy - 40, 35, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Smile
+                        this.ctx.lineWidth = 14;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 20, 110, 0.1 * Math.PI, 0.9 * Math.PI);
+                        this.ctx.stroke();
+                        // Cheeks
+                        this.ctx.fillStyle = 'rgba(255, 77, 79, 0.4)';
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 170, cy + 30, 30, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 170, cy + 30, 30, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+
+                    // 2. Cool Sunglasses 馃槑
+                    case 'cool':
+                        // Black Glasses Frame
+                        this.ctx.fillStyle = '#111111';
+                        this.ctx.beginPath();
+                        this.ctx.roundRect(cx - 210, cy - 90, 180, 95, 20);
+                        this.ctx.roundRect(cx + 30, cy - 90, 180, 95, 20);
+                        this.ctx.fill();
+                        this.ctx.fillRect(cx - 30, cy - 60, 60, 15);
+                        // Glass White Reflection Line
+                        this.ctx.strokeStyle = '#ffffff';
+                        this.ctx.lineWidth = 6;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(cx - 190, cy - 70);
+                        this.ctx.lineTo(cx - 120, cy - 20);
+                        this.ctx.moveTo(cx + 50, cy - 70);
+                        this.ctx.lineTo(cx + 120, cy - 20);
+                        this.ctx.stroke();
+                        // Cool Smirk
+                        this.ctx.lineWidth = 12;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx + 20, cy + 30, 100, 0.1 * Math.PI, 0.6 * Math.PI);
+                        this.ctx.stroke();
+                        break;
+
+                    // 3. Winking Tongue 馃槣
+                    case 'wink':
+                        // Left Open Eye
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 50, 35, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Right Winking Eye (Arc)
+                        this.ctx.lineWidth = 14;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx + 130, cy - 50, 35, 0.8 * Math.PI, 0.2 * Math.PI);
+                        this.ctx.stroke();
+                        // Mouth + Sticking Tongue
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 30, 120, 0, Math.PI, false);
+                        this.ctx.fill();
+                        // Tongue Out
+                        this.ctx.fillStyle = '#ff4d4f';
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 30, cy + 130, 45, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+
+                    // 4. Heart Eyes 馃槏
+                    case 'heart_eyes':
+                        const pulse = Math.sin(this.time * 6) * 10 + 55;
+                        this.drawHeart(cx - 130, cy - 50, pulse, '#ff0054', true);
+                        this.drawHeart(cx + 130, cy - 50, pulse, '#ff0054', true);
+                        // Smile
+                        this.ctx.lineWidth = 14;
+                        this.ctx.fillStyle = '#222';
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 30, 110, 0, Math.PI);
+                        this.ctx.fill();
+                        break;
+
+                    // 5. Crying Laughing 馃槶
+                    case 'cry_laugh':
+                        // Squint Eyes
+                        this.ctx.lineWidth = 14;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 50, 35, 0.8 * Math.PI, 0.2 * Math.PI);
+                        this.ctx.arc(cx + 130, cy - 50, 35, 0.8 * Math.PI, 0.2 * Math.PI);
+                        this.ctx.stroke();
+                        // Big Open Laughing Mouth
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 20, 120, 0, Math.PI);
+                        this.ctx.fill();
+                        // Blue Tear Streams
+                        this.ctx.fillStyle = '#00f0ff';
+                        this.ctx.shadowColor = '#00f0ff';
+                        this.ctx.shadowBlur = 15;
+                        const tearY = (this.time * 200) % 150 + cy - 30;
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(cx - 200, tearY, 20, 35, -0.2, 0, Math.PI * 2);
+                        this.ctx.ellipse(cx + 200, tearY, 20, 35, 0.2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.shadowBlur = 0;
+                        break;
+
+                    // 6. Thinking 馃
+                    case 'thinking':
+                        // Eyes looking up-right
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 110, cy - 60, 35, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 130, cy - 60, 35, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Pupils looking up
+                        this.ctx.fillStyle = '#fff';
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 100, cy - 75, 12, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 140, cy - 75, 12, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Puzzled mouth line
+                        this.ctx.lineWidth = 12;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(cx - 60, cy + 80);
+                        this.ctx.lineTo(cx + 60, cy + 60);
+                        this.ctx.stroke();
+                        // Thinking Hand Under Chin
+                        this.ctx.fillStyle = '#ffb700';
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(cx - 40, cy + 130, 40, 25, -0.2, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+
+                    // 7. Shocked / O-Face 馃槷
+                    case 'shocked':
+                        // Wide Open Round Eyes
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 60, 45, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 130, cy - 60, 45, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Big 'O' Mouth
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(cx, cy + 70, 50, 75, 0, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+
+                    // 8. Angry / Furious 馃槨
+                    case 'angry':
+                        // Angry Slanted Eyebrows
+                        this.ctx.lineWidth = 18;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(cx - 200, cy - 120);
+                        this.ctx.lineTo(cx - 70, cy - 60);
+                        this.ctx.moveTo(cx + 200, cy - 120);
+                        this.ctx.lineTo(cx + 70, cy - 60);
+                        this.ctx.stroke();
+                        // Glaring Eyes
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 120, cy - 40, 30, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 120, cy - 40, 30, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Frown Mouth
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 120, 100, 1.1 * Math.PI, 1.9 * Math.PI);
+                        this.ctx.stroke();
+                        break;
+
+                    // 9. Sleeping 馃槾
+                    case 'sleepy':
+                        // Closed Curved Eyes (Sleeping)
+                        this.ctx.lineWidth = 12;
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 30, 40, 0.1 * Math.PI, 0.9 * Math.PI);
+                        this.ctx.arc(cx + 130, cy - 30, 40, 0.1 * Math.PI, 0.9 * Math.PI);
+                        this.ctx.stroke();
+                        // Small Round Snoring Mouth
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx, cy + 60, 30, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Floating 'Zzz' Text
+                        this.ctx.font = '900 48px Orbitron, sans-serif';
+                        this.ctx.fillStyle = '#ffffff';
+                        const zY = (this.time * 60) % 120;
+                        this.ctx.fillText("Z Z z", cx + 180, cy - 80 - zY);
+                        break;
+
+                    // 10. Mind Blown 馃く
+                    case 'mindblown':
+                        // Eyes wide bulging
+                        this.ctx.beginPath();
+                        this.ctx.arc(cx - 130, cy - 10, 40, 0, Math.PI * 2);
+                        this.ctx.arc(cx + 130, cy - 10, 40, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Open Shocked Mouth
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(cx, cy + 100, 60, 40, 0, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        // Top Head Explosion Mushroom Cloud
+                        for (let i = 0; i < 20; i++) {
+                            const expAngle = (Math.PI / 20) * i + Math.PI;
+                            const expDist = 180 + Math.sin(this.time * 8 + i) * 30;
+                            const px = cx + Math.cos(expAngle) * expDist;
+                            const py = cy - 60 + Math.sin(expAngle) * expDist;
+                            
+                            this.ctx.fillStyle = ['#ff0055', '#00f0ff', '#ffea00'][i % 3];
+                            this.ctx.shadowColor = '#ffea00';
+                            this.ctx.shadowBlur = 15;
+                            this.ctx.beginPath();
+                            this.ctx.arc(px, py, 25, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        }
+                        this.ctx.shadowBlur = 0;
+                        break;
+                }
+            }
+
+            // 9. Realistic Earth
+            renderEarth() {
+                const w = this.width;
+                const h = this.height;
+
+                this.ctx.fillStyle = '#04152d';
+                this.ctx.fillRect(0, 0, w, h);
+
+                const offset = (this.time * 30) % w;
+                this.ctx.fillStyle = '#1b4d2e';
+
+                for (let i = -1; i <= 2; i++) {
+                    const baseX = i * w + offset;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(baseX + 100, 100);
+                    this.ctx.quadraticCurveTo(baseX + 250, 120, baseX + 280, 250);
+                    this.ctx.quadraticCurveTo(baseX + 200, 320, baseX + 120, 260);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(baseX + 500, 120);
+                    this.ctx.quadraticCurveTo(baseX + 750, 100, baseX + 850, 240);
+                    this.ctx.quadraticCurveTo(baseX + 650, 340, baseX + 520, 260);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                }
+
+                this.ctx.fillStyle = '#ffc107';
+                for (let j = 0; j < 80; j++) {
+                    const lx = ((j * 47) + offset) % w;
+                    const ly = 120 + Math.sin(j * 3) * 140;
+                    this.ctx.fillRect(lx, ly, 3, 3);
+                }
+
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                for (let c = -1; c <= 2; c++) {
+                    const cx = c * w + offset * 1.3;
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(cx + 300, 180, 160, 25, 0.2, 0, Math.PI * 2);
+                    this.ctx.ellipse(cx + 700, 320, 200, 30, -0.1, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            // 10. Custom User Configured Facade Engine
             renderCustom() {
                 const w = this.width;
                 const h = this.height;
@@ -878,7 +1223,6 @@
                 const c2 = this.params.color2;
 
                 if (this.params.mode === 'matrix') {
-                    // Digital Matrix Grid
                     const cols = 32;
                     const cellW = w / cols;
                     for (let x = 0; x < cols; x++) {
@@ -889,7 +1233,6 @@
                         }
                     }
                 } else if (this.params.mode === 'waves') {
-                    // Energy Plasma Waves
                     for (let x = 0; x < w; x += 10) {
                         const waveY = h/2 + Math.sin(x * 0.01 + this.time * 3) * 100 + Math.cos(x * 0.02 - this.time * 2) * 50;
                         const grad = this.ctx.createLinearGradient(x, 0, x, h);
@@ -899,7 +1242,6 @@
                         this.ctx.fillRect(x, waveY - 20, 8, 40);
                     }
                 } else if (this.params.mode === 'text') {
-                    // Custom Scrolling Text
                     this.ctx.font = '900 52px Orbitron, sans-serif';
                     this.ctx.textAlign = 'center';
                     this.ctx.fillStyle = c1;
@@ -910,7 +1252,6 @@
                     this.ctx.fillText(this.params.text.toUpperCase(), scrollX, h * 0.55);
                     this.ctx.shadowBlur = 0;
                 } else if (this.params.mode === 'rings') {
-                    // Concentric Glowing Rings
                     const cx = w * 0.5;
                     const cy = h * 0.5;
                     for (let r = 20; r < 300; r += 40) {
@@ -925,15 +1266,12 @@
             }
         }
 
-        // --- 3. Three.js 3D Sphere & Las Vegas Scene Environment ---
+        // --- 3. Three.js 3D Sphere Scene ---
         class VegasSphereScene {
             constructor() {
                 this.container = document.getElementById('webgl-container');
-                
-                // Texture Generator Reference
                 this.facadeGen = new FacadeTextureGenerator('texture-canvas');
 
-                // Scene, Camera, Renderer
                 this.scene = new THREE.Scene();
                 this.scene.fog = new THREE.FogExp2(0x030308, 0.0035);
 
@@ -950,11 +1288,10 @@
 
                 this.container.appendChild(this.renderer.domElement);
 
-                // Orbit Controls
                 this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
                 this.controls.enableDamping = true;
                 this.controls.dampingFactor = 0.05;
-                this.controls.maxPolarAngle = Math.PI / 2 - 0.01; // Don't go below ground
+                this.controls.maxPolarAngle = Math.PI / 2 - 0.01;
                 this.controls.minDistance = 25;
                 this.controls.maxDistance = 150;
                 this.controls.autoRotate = true;
@@ -967,16 +1304,13 @@
                 this.initEnvironment();
                 this.bindEvents();
 
-                // Start Loop
                 this.animate();
             }
 
             initLights() {
-                // Ambient Light
                 const ambientLight = new THREE.AmbientLight(0x0d111e, 1.2);
                 this.scene.add(ambientLight);
 
-                // Main Directional Moon/City Sky Light
                 const dirLight = new THREE.DirectionalLight(0x223355, 1.5);
                 dirLight.position.set(50, 80, 40);
                 dirLight.castShadow = true;
@@ -984,24 +1318,20 @@
                 dirLight.shadow.mapSize.height = 2048;
                 this.scene.add(dirLight);
 
-                // Dynamic Facade Point Light Glow (Emits LED light onto ground and surrounding buildings)
                 this.spherePointLight = new THREE.PointLight(0x00f0ff, 3.5, 120);
                 this.spherePointLight.position.set(0, 15, 0);
                 this.scene.add(this.spherePointLight);
             }
 
             initSphere() {
-                // Dynamic Canvas Texture for Three.js Material
                 this.facadeTexture = new THREE.CanvasTexture(this.facadeGen.canvas);
                 this.facadeTexture.minFilter = THREE.LinearFilter;
                 this.facadeTexture.magFilter = THREE.LinearFilter;
                 this.facadeTexture.wrapS = THREE.RepeatWrapping;
                 this.facadeTexture.wrapT = THREE.ClampToEdgeWrapping;
 
-                // Sphere Geometry
                 const geometry = new THREE.SphereGeometry(18, 64, 64);
 
-                // Mesh Standard Material with High Emissive facade map
                 this.sphereMaterial = new THREE.MeshStandardMaterial({
                     map: this.facadeTexture,
                     emissiveMap: this.facadeTexture,
@@ -1012,12 +1342,11 @@
                 });
 
                 this.sphereMesh = new THREE.Mesh(geometry, this.sphereMaterial);
-                this.sphereMesh.position.set(0, 15, 0); // Elevated above ground
+                this.sphereMesh.position.set(0, 15, 0);
                 this.sphereMesh.castShadow = true;
                 this.sphereMesh.receiveShadow = true;
                 this.scene.add(this.sphereMesh);
 
-                // Outer Atmosphere Neon Glow Aura (Backside Mesh Shell)
                 const glowGeo = new THREE.SphereGeometry(18.6, 32, 32);
                 const glowMat = new THREE.MeshBasicMaterial({
                     color: 0x00f0ff,
@@ -1030,11 +1359,10 @@
             }
 
             initEnvironment() {
-                // 1. Wet Reflective Ground Plane (Las Vegas Strip Asphalt)
                 const groundGeo = new THREE.PlaneGeometry(300, 300);
                 const groundMat = new THREE.MeshStandardMaterial({
                     color: 0x0a0d14,
-                    roughness: 0.1, // Shiny wet asphalt reflection
+                    roughness: 0.1,
                     metalness: 0.6
                 });
                 const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -1043,12 +1371,10 @@
                 ground.receiveShadow = true;
                 this.scene.add(ground);
 
-                // Ground Grid Line Accents
                 const grid = new THREE.GridHelper(300, 40, 0x06b6d4, 0x1e293b);
                 grid.position.y = -2.9;
                 this.scene.add(grid);
 
-                // 2. Distant Las Vegas Silhouette Buildings & Neon Tower Silhouettes
                 const buildingGroup = new THREE.Group();
                 const bldgGeo = new THREE.BoxGeometry(1, 1, 1);
                 
@@ -1056,7 +1382,6 @@
                     const angle = (i / 45) * Math.PI * 2;
                     const radius = 90 + Math.random() * 50;
 
-                    // Distant ring positioning around Sphere
                     const x = Math.cos(angle) * radius;
                     const z = Math.sin(angle) * radius;
 
@@ -1064,7 +1389,6 @@
                     const width = 12 + Math.random() * 16;
                     const depth = 12 + Math.random() * 16;
 
-                    // Building Material
                     const bldgMat = new THREE.MeshStandardMaterial({
                         color: 0x060913,
                         roughness: 0.4,
@@ -1076,7 +1400,6 @@
                     building.position.set(x, height / 2 - 3, z);
                     buildingGroup.add(building);
 
-                    // Add Neon Strip Edges on top of buildings
                     if (Math.random() > 0.4) {
                         const neonGeo = new THREE.BoxGeometry(width + 0.2, 1, depth + 0.2);
                         const neonMat = new THREE.MeshBasicMaterial({
@@ -1089,7 +1412,6 @@
                 }
                 this.scene.add(buildingGroup);
 
-                // 3. Starfield Particle Background Sky
                 const starsGeo = new THREE.BufferGeometry();
                 const count = 1200;
                 const positions = new Float32Array(count * 3);
@@ -1124,49 +1446,49 @@
 
                 const delta = this.clock.getDelta();
 
-                // 1. Update Offscreen Canvas Facade Texture
                 this.facadeGen.update(delta);
                 this.facadeTexture.needsUpdate = true;
 
-                // 2. Synchronize Light intensity with Facade parameters
                 this.sphereMaterial.emissiveIntensity = this.facadeGen.params.intensity;
                 
-                // Extract glow tint color from custom or preset
-                if (this.facadeGen.currentPreset === 'halloween') {
+                // Color synchronization
+                const preset = this.facadeGen.currentPreset;
+                if (preset === 'halloween') {
                     this.spherePointLight.color.setHex(0xff5500);
                     this.glowMesh.material.color.setHex(0xff5500);
-                } else if (this.facadeGen.currentPreset === 'christmas') {
+                } else if (preset === 'christmas') {
                     this.spherePointLight.color.setHex(0x52c41a);
                     this.glowMesh.material.color.setHex(0x52c41a);
-                } else if (this.facadeGen.currentPreset === 'cyberpunk') {
-                    this.spherePointLight.color.setHex(0x00f0ff);
-                    this.glowMesh.material.color.setHex(0x00f0ff);
-                } else if (this.facadeGen.currentPreset === 'emoji') {
+                } else if (preset === 'mid_autumn') {
                     this.spherePointLight.color.setHex(0xffea00);
                     this.glowMesh.material.color.setHex(0xffea00);
-                } else if (this.facadeGen.currentPreset === 'fireworks') {
-                    this.spherePointLight.color.setHex(0xff00a0);
-                    this.glowMesh.material.color.setHex(0xff00a0);
+                } else if (preset === 'valentine') {
+                    this.spherePointLight.color.setHex(0xff0054);
+                    this.glowMesh.material.color.setHex(0xff0054);
+                } else if (preset === 'lantern') {
+                    this.spherePointLight.color.setHex(0xd90429);
+                    this.glowMesh.material.color.setHex(0xd90429);
+                } else if (preset === 'emoji') {
+                    this.spherePointLight.color.setHex(0xffea00);
+                    this.glowMesh.material.color.setHex(0xffea00);
                 } else {
                     this.spherePointLight.color.setStyle(this.facadeGen.params.color1);
                     this.glowMesh.material.color.setStyle(this.facadeGen.params.color1);
                 }
 
-                // 3. Update Orbit Controls
                 this.controls.update();
-
-                // 4. Render 3D Scene
                 this.renderer.render(this.scene, this.camera);
             }
         }
 
-        // --- 4. UI Interaction & Controller Bindings ---
+        // --- 4. UI Bindings ---
         window.onload = () => {
             const app = new VegasSphereScene();
 
-            // Preset Buttons Interaction
             const presetButtons = document.querySelectorAll('.preset-btn');
             const customPanel = document.getElementById('custom-panel');
+            const emojiDrawer = document.getElementById('emoji-drawer');
+            const emojiSubButtons = document.querySelectorAll('.emoji-sub-btn');
 
             presetButtons.forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -1177,12 +1499,27 @@
                     const presetKey = targetBtn.getAttribute('data-preset');
                     app.facadeGen.currentPreset = presetKey;
 
-                    // Show Side Controller panel only when Custom mode is selected
+                    // Toggle Drawer & Panels
                     if (presetKey === 'custom') {
                         customPanel.classList.remove('hidden');
+                        emojiDrawer.classList.add('hidden');
+                    } else if (presetKey === 'emoji') {
+                        emojiDrawer.classList.remove('hidden');
+                        customPanel.classList.add('hidden');
                     } else {
                         customPanel.classList.add('hidden');
+                        emojiDrawer.classList.add('hidden');
                     }
+                });
+            });
+
+            // Emoji Sub-pack selector
+            emojiSubButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    emojiSubButtons.forEach(b => b.classList.remove('active'));
+                    const target = e.currentTarget;
+                    target.classList.add('active');
+                    app.facadeGen.activeEmoji = target.getAttribute('data-emoji');
                 });
             });
 
@@ -1224,7 +1561,7 @@
                 }
             });
 
-            // --- Custom Panel Form Listeners ---
+            // Custom Panel Inputs
             const ctrlMode = document.getElementById('ctrl-mode');
             const ctrlText = document.getElementById('ctrl-text');
             const textGroup = document.getElementById('text-input-group');
@@ -1239,11 +1576,6 @@
 
             ctrlMode.addEventListener('change', (e) => {
                 app.facadeGen.params.mode = e.target.value;
-                if (e.target.value === 'text') {
-                    textGroup.style.display = 'block';
-                } else {
-                    textGroup.style.display = 'block';
-                }
             });
 
             ctrlText.addEventListener('input', (e) => {
